@@ -5,10 +5,13 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 public class Sender {
-    private static final String SIMPLE_QUE = "I`m SIMPLE_QUE";
+
+    private final static String QUEUE_NAME = "hello";
+
     public static void main(String[] args) throws IOException, TimeoutException {
         //获取连接
         Connection connection = ConnectionUtils.getConnection();
@@ -23,8 +26,9 @@ public class Sender {
          * autoDelete 是否自动删除，当最后一个消费者断开连接之后队列是否自动被删除，
          *            可以通过RabbitMQ Management，查看某个队列的消费者数量，当consumers = 0时队列就会自动删除
          */
-        channel.queueDeclare(SIMPLE_QUE, false, false, false, null);
-        String msg = "Hello World";
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        String message = "Hello World!";
+        channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
         /**
          * 发送消息
          *
@@ -33,7 +37,7 @@ public class Sender {
          * props 未做研究,只知道这里可以设置消息持久化  MessageProperties.PERSISTENT_TEXT_PLAIN
          * body 消息
          */
-        channel.basicPublish("", SIMPLE_QUE, null, msg.getBytes());
+        channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
         channel.close();
         connection.close();
     }
