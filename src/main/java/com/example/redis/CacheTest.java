@@ -1,6 +1,6 @@
 package com.example.redis;
 
-import com.itung.redis.LinkedListCache;
+import com.example.redis.LinkedListCache;
 
 public class CacheTest {
 
