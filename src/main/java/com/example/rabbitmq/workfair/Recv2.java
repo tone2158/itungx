@@ -1,4 +1,4 @@
-package com.example.rabbitmq.worker;
+package com.example.rabbitmq.workfair;
 
 import com.example.rabbitmq.ConnectionUtils;
 import com.rabbitmq.client.*;
@@ -11,8 +11,9 @@ public class Recv2 {
 
     public static void main(String[] args) throws IOException, TimeoutException {
         Connection connection = ConnectionUtils.getConnection();
-        Channel channel = connection.createChannel();
+        final Channel channel = connection.createChannel();
         channel.queueDeclare(QUEUE_NAME,false,false,false,null);
+        channel.basicQos(1);
         DefaultConsumer defaultConsumer = new DefaultConsumer(channel){
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
@@ -24,11 +25,12 @@ public class Recv2 {
                     e.printStackTrace();
                 }finally {
                     System.out.println("[1] done");
+                    channel.basicAck(envelope.getDeliveryTag(),false);
                 }
             }
         };
 
-        boolean autoAck = true;
+        boolean autoAck = false;
         channel.basicConsume(QUEUE_NAME,autoAck,defaultConsumer);
     }
 }
